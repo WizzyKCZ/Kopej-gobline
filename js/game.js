@@ -474,6 +474,8 @@ let player = {
           ) {
             console.log("New level !!!");
             player.y = 0;
+            stats.coal = 0;
+            stats.diamond = 0;
             area.generate();
             area.inUnderground = true;
             player.money = player.money - player.level * player.levelPrice;
@@ -519,11 +521,13 @@ let player = {
     } else if (blockType[this.x][this.y] == "coal") {
       blockType[this.x][this.y] = "digged";
       this.coal++;
+      stats.coal++;
       this.money += this.coalPrice;
       console.log("digged coal");
     } else if (blockType[this.x][this.y] == "diamond") {
       blockType[this.x][this.y] = "digged";
       this.diamond++;
+      stats.diamond++;
       this.money += this.diamondPrice;
       console.log("digged diamond");
     }
@@ -592,10 +596,12 @@ let stats = {
     );
     ctxStats.fill();
   },
+  diamond: 0,
+  coal: 0,
   levelRestartOption: function() {
     if (
-      area.coalGenerated == player.coal &&
-      area.diamondGenerated == player.diamond &&
+      this.coal == player.coal &&
+      this.diamond == player.diamond &&
       player.money < player.level * player.levelPrice
     ) {
       if (player.coal != 0 || player.diamond != 0) {
