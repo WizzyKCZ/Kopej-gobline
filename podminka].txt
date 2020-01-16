@@ -1,0 +1,11 @@
+if (
+          blockType[i][j] == "coal" &&
+          (blockType[i+1][j] == "digged" ||
+            blockType[i-1][j] == "digged" ||
+            blockType[i][j+1] == "digged" ||
+            blockType[i][j-1] == "digged" ||
+            blockType[i+1][j+1] == "digged" ||
+            blockType[i+1][j-1] == "digged" ||
+            blockType[i-1][j+1] == "digged" ||
+            blockType[i-1][j-1] == "digged")
+        ) 
