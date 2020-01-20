@@ -130,9 +130,36 @@ function areaVision(i, j) {
       area.blockSize,
       area.blockSize
     );
+  } else if (blockType[i][j] == "gold") {
+    ctx.strokeStyle = "yellow";
+    ctx.fillStyle = "yellow";
+    ctx.rect(
+      i * area.blockSize,
+      j * area.blockSize,
+      area.blockSize,
+      area.blockSize
+    );
   } else if (blockType[i][j] == "diamond") {
     ctx.strokeStyle = "#0062ff";
     ctx.fillStyle = "#0062ff";
+    ctx.rect(
+      i * area.blockSize,
+      j * area.blockSize,
+      area.blockSize,
+      area.blockSize
+    );
+  } else if (blockType[i][j] == "emerald") {
+    ctx.strokeStyle = "lightgreen";
+    ctx.fillStyle = "lightgreen";
+    ctx.rect(
+      i * area.blockSize,
+      j * area.blockSize,
+      area.blockSize,
+      area.blockSize
+    );
+  } else if (blockType[i][j] == "ruby") {
+    ctx.strokeStyle = "red";
+    ctx.fillStyle = "red";
     ctx.rect(
       i * area.blockSize,
       j * area.blockSize,
@@ -155,10 +182,13 @@ function areaVision(i, j) {
 
 let area = {
   blockSize: 25,
-  areaWidth: 42,
-  areaHeight: 27,
-  coalPer: 5,
+  areaWidth: 42, //42
+  areaHeight: 27, //27
+  coalPer: 3,
+  goldPer: 1,
   diamondPer: 0.2,
+  emeraldPer: 0.05,
+  rubyPer: 0.01,
   inUnderground: false,
   diamondGenerated: 0,
   coalGenerated: 0,
@@ -170,8 +200,14 @@ let area = {
           blockType[i][j] = "dirt";
         } else if (Math.random() * 100 < this.coalPer) {
           blockType[i][j] = "coal";
+        } else if (Math.random() * 100 < this.goldPer) {
+          blockType[i][j] = "gold";
         } else if (Math.random() * 100 < this.diamondPer) {
           blockType[i][j] = "diamond";
+        } else if (Math.random() * 100 < this.emeraldPer) {
+          blockType[i][j] = "emerald";
+        } else if (Math.random() * 100 < this.rubyPer) {
+          blockType[i][j] = "ruby";
         } else {
           blockType[i][j] = "dirt";
         }
@@ -183,7 +219,7 @@ let area = {
   repaint: function() {
     for (let i = 0; i < this.areaWidth; i++) {
       for (let j = 0; j < this.areaHeight; j++) {
-        if (i == player.x && j == player.y) {
+        /*if (i == player.x && j == player.y) {
           areaVision(i, j);
         } else if (j == 0 && area.inUnderground == false) {
           areaVision(i, j);
@@ -332,8 +368,8 @@ let area = {
             ctx.stroke();
             ctx.fill();
           }
-        }
-        /*areaVision(i, j);*/
+        }*/
+        areaVision(i, j);
       }
     }
   }
@@ -351,17 +387,25 @@ let area = {
 
 let player = {
   movingSpeed: 200,
-  drillingSpeed: 500,
+  drillingSpeed: 100,
   level: 1,
   coal: 0,
+  gold: 0,
   diamond: 0,
+  emerald: 0,
+  ruby: 0,
   x: 21,
   y: 0,
   pressed: 0,
   money: 0,
-  coalPrice: 25,
+  coalPrice: 10,
+  goldPrice: 30,
   diamondPrice: 100,
-  levelPrice: 500,
+  emeraldPrice: 250,
+  rubyPrice: 600,
+  levelPrice: 750,
+  backpackLevel: 10,
+  backpack: [],
   movement: function() {
     document.addEventListener("keydown", function move(ev) {
       console.log(ev.code);
@@ -474,13 +518,40 @@ let player = {
           ) {
             console.log("New level !!!");
             player.y = 0;
-            stats.coal = 0;
-            stats.diamond = 0;
             area.generate();
             area.inUnderground = true;
             player.money = player.money - player.level * player.levelPrice;
             player.level++;
+            area.coalPer += 2;
+            area.diamondPer += 0.3;
           } else {
+          }
+          break;
+        case "KeyX":
+          player.level = 1;
+          area.inUnderground = false;
+          player.y = 0;
+          player.x = 21;
+          area.coalPer = 5;
+          area.diamondPer = 0.2;
+          area.generate();
+          break;
+        case "KeyF":
+          if (player.y == 0) {
+            for (let i = 0; i <= player.backpackLevel; i++) {
+              if (player.backpack[i] == "coal") {
+                player.money += player.coalPrice;
+              } else if (player.backpack[i] == "gold") {
+                player.money += player.goldPrice;
+              } else if (player.backpack[i] == "diamond") {
+                player.money += player.diamondPrice;
+              } else if (player.backpack[i] == "emerald") {
+                player.money += player.emeraldPrice;
+              } else if (player.backpack[i] == "ruby") {
+                player.money += player.rubyPrice;
+              }
+            }
+            player.backpack = [];
           }
           break;
       }
@@ -520,16 +591,39 @@ let player = {
       console.log("digged dirt");
     } else if (blockType[this.x][this.y] == "coal") {
       blockType[this.x][this.y] = "digged";
-      this.coal++;
-      stats.coal++;
-      this.money += this.coalPrice;
+      if (player.backpack.length < player.backpackLevel) {
+        this.coal++;
+        player.backpack.push("coal");
+      }
       console.log("digged coal");
+    } else if (blockType[this.x][this.y] == "gold") {
+      blockType[this.x][this.y] = "digged";
+      if (player.backpack.length < player.backpackLevel) {
+        this.gold++;
+        player.backpack.push("gold");
+      }
+      console.log("digged gold");
     } else if (blockType[this.x][this.y] == "diamond") {
       blockType[this.x][this.y] = "digged";
-      this.diamond++;
-      stats.diamond++;
-      this.money += this.diamondPrice;
+      if (player.backpack.length < player.backpackLevel) {
+        this.diamond++;
+        player.backpack.push("diamond");
+      }
       console.log("digged diamond");
+    } else if (blockType[this.x][this.y] == "emerald") {
+      blockType[this.x][this.y] = "digged";
+      if (player.backpack.length < player.backpackLevel) {
+        this.emerald++;
+        player.backpack.push("emerald");
+      }
+      console.log("digged emerald");
+    } else if (blockType[this.x][this.y] == "ruby") {
+      blockType[this.x][this.y] = "digged";
+      if (player.backpack.length < player.backpackLevel) {
+        this.ruby++;
+        player.backpack.push("ruby");
+      }
+      console.log("digged ruby");
     }
   }
 };
@@ -540,8 +634,12 @@ let stats = {
     ctxStats.font = "20px Arial";
     ctxStats.strokeStyle = "black";
     ctxStats.fillStyle = "black";
+    ctxStats.fillText(
+      "Backpack: " + player.backpack.length + " / " + player.backpackLevel,
+      10,
+      20
+    );
     ctxStats.fillText("Your level:" + player.level, 175, 20);
-
     ctxStats.font = "25px Arial";
     ctxStats.fillText("Coal: ", 10, 50);
     ctxStats.strokeStyle = "black";
@@ -549,16 +647,34 @@ let stats = {
     ctxStats.fillText(player.coal + " pcs", 150, 50);
     ctxStats.strokeStyle = "black";
     ctxStats.fillStyle = "black";
-    ctxStats.fillText("Diamonds: ", 10, 75);
-    ctxStats.strokeStyle = "#0062ff";
-    ctxStats.fillStyle = "#0062ff";
-    ctxStats.fillText(player.diamond + " pcs", 150, 75);
-    ctxStats.strokeStyle = "black";
-    ctxStats.fillStyle = "black";
-    ctxStats.fillText("Money: ", 10, 100);
+    ctxStats.fillText("Golds: ", 10, 75);
     ctxStats.strokeStyle = "yellow";
     ctxStats.fillStyle = "yellow";
-    ctxStats.fillText(player.money + " $", 150, 100);
+    ctxStats.fillText(player.gold + " pcs", 150, 75);
+    ctxStats.strokeStyle = "black";
+    ctxStats.fillStyle = "black";
+    ctxStats.fillText("Diamonds: ", 10, 100);
+    ctxStats.strokeStyle = "#0062ff";
+    ctxStats.fillStyle = "#0062ff";
+    ctxStats.fillText(player.diamond + " pcs", 150, 100);
+    ctxStats.strokeStyle = "black";
+    ctxStats.fillStyle = "black";
+    ctxStats.fillText("Emeralds: ", 10, 125);
+    ctxStats.strokeStyle = "lightgreen";
+    ctxStats.fillStyle = "lightgreen";
+    ctxStats.fillText(player.emerald + " pcs", 150, 125);
+    ctxStats.strokeStyle = "black";
+    ctxStats.fillStyle = "black";
+    ctxStats.fillText("Rubies: ", 10, 150);
+    ctxStats.strokeStyle = "red";
+    ctxStats.fillStyle = "red";
+    ctxStats.fillText(player.ruby + " pcs", 150, 150);
+    ctxStats.strokeStyle = "black";
+    ctxStats.fillStyle = "black";
+    ctxStats.fillText("Money: ", 10, 175);
+    ctxStats.strokeStyle = "yellow";
+    ctxStats.fillStyle = "yellow";
+    ctxStats.fillText(player.money + " $", 150, 175);
     ctxStats.stroke();
     ctxStats.fill();
   },
@@ -575,7 +691,7 @@ let stats = {
       ctxStats.font = "10px Arial";
       ctxStats.strokeStyle = "red";
       ctxStats.fillStyle = "red";
-      ctxStats.fillText("You must be at the bottom of the area !", 10, 610);
+      ctxStats.fillText("You must be at the bottom of the area !", 10, 535);
       ctxStats.strokeStyle = "grey";
       ctxStats.fillStyle = "grey";
       ctxStats.font = "25px Arial";
@@ -583,42 +699,31 @@ let stats = {
       ctxStats.font = "10px Arial";
       ctxStats.strokeStyle = "red";
       ctxStats.fillStyle = "red";
-      ctxStats.fillText("You dont have enought money !", 10, 610);
+      ctxStats.fillText("You dont have enought money !", 10, 535);
       ctxStats.strokeStyle = "grey";
       ctxStats.fillStyle = "grey";
       ctxStats.font = "25px Arial";
     }
-    ctxStats.fillText('Press "N" for', 10, 640);
+    ctxStats.fillText('Press "N" for', 10, 560);
     ctxStats.fillText(
       "buy next level (" + player.level * player.levelPrice + " $)",
       10,
-      665
+      585
     );
     ctxStats.fill();
   },
-  diamond: 0,
-  coal: 0,
   levelRestartOption: function() {
-    if (
-      this.coal == player.coal &&
-      this.diamond == player.diamond &&
-      player.money < player.level * player.levelPrice
-    ) {
-      if (player.coal != 0 || player.diamond != 0) {
-        ctx.beginPath();
-        ctx.font = "25px Arial";
-        ctx.strokeStyle = "red";
-        ctx.fillStyle = "red";
-        ctx.rect(775, 550, 250, 100);
-        ctx.fill();
-        ctx.strokeStyle = "black";
-        ctx.fillStyle = "black";
-        ctx.fillText("Nothink to dig :(", 790, 575);
-        ctx.fillText('Press "X" for', 790, 600);
-        ctx.fillText("restart from begining", 790, 625);
-        ctx.stroke();
-      }
-    }
+    ctxStats.beginPath();
+    ctxStats.strokeStyle = "black";
+    ctxStats.fillStyle = "black";
+    ctxStats.moveTo(0, 592);
+    ctxStats.lineTo(300, 592);
+    ctxStats.font = "25px Arial";
+    ctxStats.fill();
+    ctxStats.fillText("Nothink to dig ??", 10, 615);
+    ctxStats.fillText('Press "X" for', 10, 640);
+    ctxStats.fillText("restart from begining", 10, 665);
+    ctxStats.stroke();
   }
 };
 
@@ -630,7 +735,6 @@ function play() {
     canvas.clear();
     area.repaint();
     player.paint();
-    stats.levelRestartOption();
     player.checkBlock();
   }, 20);
 }
@@ -638,8 +742,9 @@ function play() {
 function playStats() {
   setInterval(function playStats1() {
     canvas.clearStats();
-    stats.display();
     stats.nextLevelDisplay();
+    stats.levelRestartOption();
+    stats.display();
   }, 20);
 }
 
