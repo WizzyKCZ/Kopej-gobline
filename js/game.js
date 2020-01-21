@@ -386,8 +386,10 @@ let area = {
 };
 
 let player = {
-  movingSpeed: 200,
+  movingSpeed: 250,
+  movingLevel: 1,
   drillingSpeed: 500,
+  drillingLevel: 1,
   level: 1,
   coal: 0,
   gold: 0,
@@ -398,14 +400,15 @@ let player = {
   y: 0,
   pressed: 0,
   money: 0,
-  coalPrice: 10,
-  goldPrice: 30,
-  diamondPrice: 100,
-  emeraldPrice: 250,
-  rubyPrice: 600,
+  coalPrice: 50,
+  goldPrice: 120,
+  diamondPrice: 300,
+  emeraldPrice: 700,
+  rubyPrice: 1500,
   levelPrice: 750,
-  backpackLevel: 10,
+  backpackLevel: 1,
   backpack: [],
+  upgradePrice: 750,
   movement: function() {
     document.addEventListener("keydown", function move(ev) {
       console.log(ev.code);
@@ -422,7 +425,7 @@ let player = {
                 player.y--;
                 console.log("hore");
                 player.pressed--;
-              }, player.movingSpeed);
+              }, player.movingSpeed - (player.movingLevel - 1) * 50);
               console.log("hore");
             } else if (player.pressed == 0) {
               player.imageSrc = "pic/goblin/up/anim1.png";
@@ -431,7 +434,7 @@ let player = {
                 player.y--;
                 console.log("hore");
                 player.pressed--;
-              }, player.drillingSpeed);
+              }, player.drillingSpeed - (player.drillingLevel - 1) * 100);
             }
           }
           break;
@@ -447,7 +450,7 @@ let player = {
                 player.y++;
                 console.log("dole");
                 player.pressed--;
-              }, player.movingSpeed);
+              }, player.movingSpeed - (player.movingLevel - 1) * 50);
               console.log("dole");
             } else if (player.pressed == 0) {
               player.imageSrc = "pic/goblin/down/anim1.png";
@@ -456,7 +459,7 @@ let player = {
                 player.y++;
                 console.log("dole");
                 player.pressed--;
-              }, player.drillingSpeed);
+              }, player.drillingSpeed - (player.drillingLevel - 1) * 100);
             }
           }
 
@@ -473,7 +476,7 @@ let player = {
                 player.x--;
                 console.log("vlevo");
                 player.pressed--;
-              }, player.movingSpeed);
+              }, player.movingSpeed - (player.movingLevel - 1) * 50);
               console.log("vlevo");
             } else if (player.pressed == 0) {
               player.imageSrc = "pic/goblin/left/anim1.png";
@@ -482,7 +485,7 @@ let player = {
                 player.x--;
                 console.log("vlevo");
                 player.pressed--;
-              }, player.drillingSpeed);
+              }, player.drillingSpeed - (player.drillingLevel - 1) * 100);
             }
           }
           break;
@@ -498,7 +501,7 @@ let player = {
                 player.x++;
                 console.log("pravo");
                 player.pressed--;
-              }, player.movingSpeed);
+              }, player.movingSpeed - (player.movingLevel - 1) * 50);
               console.log("pravo");
             } else if (player.pressed == 0) {
               player.imageSrc = "pic/goblin/right/anim1.png";
@@ -507,7 +510,7 @@ let player = {
                 player.x++;
                 console.log("pravo");
                 player.pressed--;
-              }, player.drillingSpeed);
+              }, player.drillingSpeed - (player.drillingLevel - 1) * 100);
             }
           }
           break;
@@ -534,11 +537,19 @@ let player = {
           player.x = 21;
           area.coalPer = 5;
           area.diamondPer = 0.2;
+          player.money /= 2;
+          player.backpack = [];
+          player.coal = 0;
+          player.gold = 0;
+          player.diamond = 0;
+          player.emerald = 0;
+          player.ruby = 0;
+          player.backpack = [];
           area.generate();
           break;
         case "KeyF":
           if (player.y == 0) {
-            for (let i = 0; i <= player.backpackLevel; i++) {
+            for (let i = 0; i <= player.backpackLevel * 5; i++) {
               if (player.backpack[i] == "coal") {
                 player.money += player.coalPrice;
               } else if (player.backpack[i] == "gold") {
@@ -552,6 +563,35 @@ let player = {
               }
             }
             player.backpack = [];
+            player.coal = 0;
+            player.gold = 0;
+            player.diamond = 0;
+            player.emerald = 0;
+            player.ruby = 0;
+          }
+          break;
+        case "Digit1":
+          if (
+            player.money > player.drillingLevel * player.upgradePrice &&
+            player.drillingLevel < 5
+          ) {
+            player.money -= player.drillingLevel * player.upgradePrice;
+            player.drillingLevel += 1;
+          }
+          break;
+        case "Digit2":
+          if (
+            player.money > player.movingLevel * player.upgradePrice &&
+            player.movingLevel < 5
+          ) {
+            player.money -= player.movingLevel * player.upgradePrice;
+            player.movingLevel += 1;
+          }
+          break;
+        case "Digit3":
+          if (player.money > player.backpackLevel * player.upgradePrice) {
+            player.money -= player.backpackLevel * player.upgradePrice;
+            player.backpackLevel += 1;
           }
           break;
       }
@@ -591,35 +631,35 @@ let player = {
       console.log("digged dirt");
     } else if (blockType[this.x][this.y] == "coal") {
       blockType[this.x][this.y] = "digged";
-      if (player.backpack.length < player.backpackLevel) {
+      if (player.backpack.length < player.backpackLevel * 5) {
         this.coal++;
         player.backpack.push("coal");
       }
       console.log("digged coal");
     } else if (blockType[this.x][this.y] == "gold") {
       blockType[this.x][this.y] = "digged";
-      if (player.backpack.length < player.backpackLevel) {
+      if (player.backpack.length < player.backpackLevel * 5) {
         this.gold++;
         player.backpack.push("gold");
       }
       console.log("digged gold");
     } else if (blockType[this.x][this.y] == "diamond") {
       blockType[this.x][this.y] = "digged";
-      if (player.backpack.length < player.backpackLevel) {
+      if (player.backpack.length < player.backpackLevel * 5) {
         this.diamond++;
         player.backpack.push("diamond");
       }
       console.log("digged diamond");
     } else if (blockType[this.x][this.y] == "emerald") {
       blockType[this.x][this.y] = "digged";
-      if (player.backpack.length < player.backpackLevel) {
+      if (player.backpack.length < player.backpackLevel * 5) {
         this.emerald++;
         player.backpack.push("emerald");
       }
       console.log("digged emerald");
     } else if (blockType[this.x][this.y] == "ruby") {
       blockType[this.x][this.y] = "digged";
-      if (player.backpack.length < player.backpackLevel) {
+      if (player.backpack.length < player.backpackLevel * 5) {
         this.ruby++;
         player.backpack.push("ruby");
       }
@@ -631,50 +671,55 @@ let player = {
 let stats = {
   display: function() {
     ctxStats.beginPath();
-    ctxStats.font = "20px Arial";
     ctxStats.strokeStyle = "black";
     ctxStats.fillStyle = "black";
-    ctxStats.fillText(
-      "Backpack: " + player.backpack.length + " / " + player.backpackLevel,
-      10,
-      20
-    );
-    ctxStats.fillText("Your level:" + player.level, 175, 20);
+    ctxStats.lineWidth = 5;
+    ctxStats.font = "30px Arial";
+    ctxStats.fillText("Your stats:", 75, 27);
+    ctxStats.font = "15px Arial";
+    ctxStats.fillText("Press \"F\" for sell", 175, 160);
     ctxStats.font = "25px Arial";
-    ctxStats.fillText("Coal: ", 10, 50);
+    ctxStats.fillText(
+      "Backpack: " + player.backpack.length + " / " + player.backpackLevel * 5,
+      10,
+      60
+    );
+    ctxStats.font = "15px Arial";
+    ctxStats.fillText("Coal: ", 25, 75);
     ctxStats.strokeStyle = "black";
     ctxStats.fillStyle = "blaxk";
-    ctxStats.fillText(player.coal + " pcs", 150, 50);
+    ctxStats.fillText(player.coal + " pcs", 135, 75);
     ctxStats.strokeStyle = "black";
     ctxStats.fillStyle = "black";
-    ctxStats.fillText("Golds: ", 10, 75);
+    ctxStats.fillText("Golds: ", 25, 90);
     ctxStats.strokeStyle = "yellow";
     ctxStats.fillStyle = "yellow";
-    ctxStats.fillText(player.gold + " pcs", 150, 75);
+    ctxStats.fillText(player.gold + " pcs", 135, 90);
     ctxStats.strokeStyle = "black";
     ctxStats.fillStyle = "black";
-    ctxStats.fillText("Diamonds: ", 10, 100);
+    ctxStats.fillText("Diamonds: ", 25, 105);
     ctxStats.strokeStyle = "#0062ff";
     ctxStats.fillStyle = "#0062ff";
-    ctxStats.fillText(player.diamond + " pcs", 150, 100);
+    ctxStats.fillText(player.diamond + " pcs", 135, 105);
     ctxStats.strokeStyle = "black";
     ctxStats.fillStyle = "black";
-    ctxStats.fillText("Emeralds: ", 10, 125);
+    ctxStats.fillText("Emeralds: ", 25, 120);
     ctxStats.strokeStyle = "lightgreen";
     ctxStats.fillStyle = "lightgreen";
-    ctxStats.fillText(player.emerald + " pcs", 150, 125);
+    ctxStats.fillText(player.emerald + " pcs", 135, 120);
     ctxStats.strokeStyle = "black";
     ctxStats.fillStyle = "black";
-    ctxStats.fillText("Rubies: ", 10, 150);
+    ctxStats.fillText("Rubies: ", 25, 135);
     ctxStats.strokeStyle = "red";
     ctxStats.fillStyle = "red";
-    ctxStats.fillText(player.ruby + " pcs", 150, 150);
+    ctxStats.fillText(player.ruby + " pcs", 135, 135);
     ctxStats.strokeStyle = "black";
     ctxStats.fillStyle = "black";
-    ctxStats.fillText("Money: ", 10, 175);
+    ctxStats.font = "25px Arial";
+    ctxStats.fillText("Money: ", 10, 160);
     ctxStats.strokeStyle = "yellow";
     ctxStats.fillStyle = "yellow";
-    ctxStats.fillText(player.money + " $", 150, 175);
+    ctxStats.fillText(player.money + " $", 135, 160);
     ctxStats.stroke();
     ctxStats.fill();
   },
@@ -688,7 +733,7 @@ let stats = {
       ctxStats.strokeStyle = "black";
       ctxStats.fillStyle = "black";
     } else if (player.levelPrice * player.level <= player.money) {
-      ctxStats.font = "10px Arial";
+      ctxStats.font = "13px Arial";
       ctxStats.strokeStyle = "red";
       ctxStats.fillStyle = "red";
       ctxStats.fillText("You must be at the bottom of the area !", 10, 535);
@@ -696,7 +741,7 @@ let stats = {
       ctxStats.fillStyle = "grey";
       ctxStats.font = "25px Arial";
     } else {
-      ctxStats.font = "10px Arial";
+      ctxStats.font = "13px Arial";
       ctxStats.strokeStyle = "red";
       ctxStats.fillStyle = "red";
       ctxStats.fillText("You dont have enought money !", 10, 535);
@@ -723,6 +768,96 @@ let stats = {
     ctxStats.fillText("Nothink to dig ??", 10, 615);
     ctxStats.fillText('Press "X" for', 10, 640);
     ctxStats.fillText("restart from begining", 10, 665);
+    ctxStats.font = "13px Arial";
+    //ctxStats.strokeStyle = "red";
+    ctxStats.fillStyle = "red";
+    ctxStats.fillText("You are going to lose", 155, 632);
+    ctxStats.fillText("a half of your money!", 155, 645);
+    ctxStats.stroke();
+  },
+  levelCounter: function() {
+    ctx.strokeStyle = "white";
+    ctx.fillStyle = "white";
+    ctx.font = "20px Arial";
+    ctx.fillText("Level: " + player.level, 5, 20);
+  },
+  upgrades: function() {
+    ctxStats.beginPath();
+    ctxStats.strokeStyle = "black";
+    ctxStats.fillStyle = "black";
+    ctxStats.font = "25px Arial";
+    ctxStats.fillText("Upgrades:", 10, 200);
+    ctxStats.font = "15px Arial";
+    ctxStats.fillText("Press \"Digit1\",", 150, 190);
+    ctxStats.fillText("\"Digit2\" or \"Digit3\"", 150, 205);
+    ctxStats.moveTo(0, 35);
+    ctxStats.lineTo(300, 35);
+    ctxStats.moveTo(0, 167);
+    ctxStats.lineTo(300, 167);
+    ctxStats.font = "30px Arial";
+    ctxStats.rect(0, 0, 300, 675);
+    ctxStats.rect(0, 215, 300, 80);
+    ctxStats.rect(0, 295, 300, 80);
+    ctxStats.rect(0, 375, 300, 80);
+    ctxStats.fillText("Drilling speed", 10, 250);
+    ctxStats.fillText("lvl.: " + player.drillingLevel, 10, 280);
+    ctxStats.fillText("Moving speed", 10, 330);
+    ctxStats.fillText("lvl.: " + player.movingLevel, 10, 360);
+    ctxStats.fillText("Backpack", 10, 410);
+    ctxStats.fillText("lvl.: " + player.backpackLevel, 10, 440);
+    ctxStats.stroke();
+    ctxStats.beginPath();
+    if (player.money < player.drillingLevel * player.upgradePrice) {
+      ctxStats.lineWidth = 2;
+      ctxStats.strokeStyle = "grey";
+      ctxStats.fillStyle = "grey";
+    } else {
+      ctxStats.lineWidth = 4;
+      ctxStats.strokeStyle = "black";
+      ctxStats.fillStyle = "black";
+    }
+    ctxStats.arc(250, 255, 25, 0, 2 * Math.PI);
+    ctxStats.stroke();
+    ctxStats.beginPath();
+    if (player.money < player.movingLevel * player.upgradePrice) {
+      ctxStats.lineWidth = 2;
+      ctxStats.strokeStyle = "grey";
+      ctxStats.fillStyle = "grey";
+    } else {
+      ctxStats.lineWidth = 4;
+      ctxStats.strokeStyle = "black";
+      ctxStats.fillStyle = "black";
+    }
+    ctxStats.arc(250, 335, 25, 0, 2 * Math.PI);
+    ctxStats.stroke();
+    ctxStats.beginPath();
+    if (player.money < player.backpackLevel * player.upgradePrice) {
+      ctxStats.lineWidth = 2;
+      ctxStats.strokeStyle = "grey";
+      ctxStats.fillStyle = "grey";
+    } else {
+      ctxStats.lineWidth = 4;
+      ctxStats.strokeStyle = "black";
+      ctxStats.fillStyle = "black";
+    }
+    ctxStats.arc(250, 415, 25, 0, 2 * Math.PI);
+    ctxStats.stroke();
+    ctxStats.beginPath();
+    ctxStats.font = "17px Arial";
+    ctxStats.strokeStyle = "black";
+    ctxStats.fillStyle = "black";
+    if (player.drillingLevel != 5) {
+      ctxStats.fillText(player.upgradePrice * player.drillingLevel, 230, 260);
+    } else {
+      ctxStats.fillText("MAX", 230, 260);
+    }
+    if (player.movingLevel != 5) {
+      ctxStats.fillText(player.upgradePrice * player.movingLevel, 230, 340);
+    } else {
+      ctxStats.fillText("MAX", 230, 340);
+    }
+    ctxStats.fillText(player.upgradePrice * player.backpackLevel, 230, 420);
+
     ctxStats.stroke();
   }
 };
@@ -734,8 +869,9 @@ function play() {
   setInterval(function playGame() {
     canvas.clear();
     area.repaint();
-    player.paint();
     player.checkBlock();
+    stats.levelCounter();
+    player.paint();
   }, 20);
 }
 
@@ -744,6 +880,7 @@ function playStats() {
     canvas.clearStats();
     stats.nextLevelDisplay();
     stats.levelRestartOption();
+    stats.upgrades();
     stats.display();
   }, 20);
 }
