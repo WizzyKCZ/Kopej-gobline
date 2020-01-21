@@ -219,7 +219,7 @@ let area = {
   repaint: function() {
     for (let i = 0; i < this.areaWidth; i++) {
       for (let j = 0; j < this.areaHeight; j++) {
-        /*if (i == player.x && j == player.y) {
+        if (i == player.x && j == player.y) {
           areaVision(i, j);
         } else if (j == 0 && area.inUnderground == false) {
           areaVision(i, j);
@@ -368,8 +368,8 @@ let area = {
             ctx.stroke();
             ctx.fill();
           }
-        }*/
-        areaVision(i, j);
+        }
+        /*areaVision(i, j);*/
       }
     }
   }
@@ -387,7 +387,7 @@ let area = {
 
 let player = {
   movingSpeed: 200,
-  drillingSpeed: 100,
+  drillingSpeed: 500,
   level: 1,
   coal: 0,
   gold: 0,
