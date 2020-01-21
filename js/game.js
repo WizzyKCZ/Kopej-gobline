@@ -677,7 +677,9 @@ let stats = {
     ctxStats.font = "30px Arial";
     ctxStats.fillText("Your stats:", 75, 27);
     ctxStats.font = "15px Arial";
-    ctxStats.fillText("Press \"F\" for sell", 175, 160);
+    ctxStats.fillText("Press \"F\" on the", 185, 100);
+    ctxStats.fillText("top of the screen ", 185, 115);
+    ctxStats.fillText("for sell items", 185, 130);
     ctxStats.font = "25px Arial";
     ctxStats.fillText(
       "Backpack: " + player.backpack.length + " / " + player.backpackLevel * 5,
