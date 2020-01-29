@@ -767,7 +767,7 @@ let stats = {
     ctxStats.lineTo(300, 592);
     ctxStats.font = "25px Arial";
     ctxStats.fill();
-    ctxStats.fillText("Nothink to dig ??", 10, 615);
+    ctxStats.fillText("Nothing to dig ??", 10, 615);
     ctxStats.fillText('Press "X" for', 10, 640);
     ctxStats.fillText("restart from begining", 10, 665);
     ctxStats.font = "13px Arial";
